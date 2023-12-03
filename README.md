@@ -17,8 +17,9 @@ $ cat ~/.config/aocd/tokens.json  # create this file with some auth tokens
 $ pip install ~/src/advent-of-code-solutions  # install the directory which contains your setup.py file
 ...
 $ aoc --years 2023 --days 1 2    # run it!
- 0.31s   2023/1  - Trebuchet?!                                paixaop/default   ✔ part a: 55971                              ✔ part b: 54719 
- 0.31s   2023/2  - Cube Conundrum                             paixaop/default   ✔ part a: 2285                               ✔ part b: 77021    
+   0.53s   2023/1  - Trebuchet?!                                paixaop/default   ✔ part a: 55971                              ✔ part b: 54719 
+   0.30s   2023/2  - Cube Conundrum                             paixaop/default   ✔ part a: 2285                               ✔ part b: 77021 
+   0.30s   2023/3  - Gear Ratios                                paixaop/default   ✔ part a: 550934                             ✔ part b: 81997870    
 ```
 
 Inside the entry point you can do whatever you need in order to delegate to your code. For example, write out data to a scratch file then run a script, or import a function and just pass in the data directly as an argument. The only requirement is that this entry point should return a tuple of two values, with the answers for that day's puzzle - the rest is up to you.
