@@ -1,5 +1,4 @@
-advent-of-code-solutions:
-----------------------
+# Advent of Code 2023 Solutions
 
 This repository uses the `aoc` runner script provided by [advent-of-code-data](https://github.com/wimglenn/advent-of-code-data). 
 It runs, tests and submits my solutions for AOC
