@@ -1,5 +1,7 @@
 # Advent of Code 2023 Solutions
 
+My solutions to AOC 2023 in Python. Relatively new to Python so the code might not be very pretty...
+
 This repository uses the `aoc` runner script provided by [advent-of-code-data](https://github.com/wimglenn/advent-of-code-data). 
 It runs, tests and submits my solutions for AOC
 
