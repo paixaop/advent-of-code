@@ -15,7 +15,7 @@ $ cat ~/.config/aocd/tokens.json  # create this file with some auth tokens
     "reddit": "53616c7465645f5ff7c8...",
     "twitter": "53616c7465645f5fa524..."
 }
-$ pip install ~/src/advent-of-code-solutions  # install the directory which contains your setup.py file
+$ pip install .  # install the directory which contains your setup.py file
 ...
 $ aoc --years 2023   # run it!
    0.53s   2023/1  - Trebuchet?!                         paixaop/default   ✔ part a: 55971             ✔ part b: 54719 
