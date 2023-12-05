@@ -49,23 +49,6 @@ def part_a(data):
 
 all_ranges = []
 
-def check_ranges(maps, p, index):
-    if index == 7:
-        all_ranges.append(p)
-        return
-        
-    for m in maps[index]:
-        p2 = P.closedopen(m['start'], m['finish'])
-        i = p & p2
-        if i.empty != True:
-            check_ranges(maps, P.closedopen(i.lower + m['add'], i.upper + m['add']), index + 1)
-            p -= p2
-            if p.empty:
-                break
-    if p:
-        check_ranges(maps, p, index + 1)
-    
-    index += 1
 
 # Thank you to [Wayoshi](https://www.reddit.com/user/Wayoshi/) for a brilliant solution
 # Without his help I was trying to iterate all values not realizing that 
