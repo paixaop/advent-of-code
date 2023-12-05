@@ -15,6 +15,9 @@ setup(
     ],
     install_requires=[
         "advent-of-code-data >= 2.0.1",
+        "austin-dist",
+        "numpy",
+        "portion"
         # list your other requirements here, for example:
         # "numpy", "parse", "networkx",
     ],
