@@ -1,4 +1,4 @@
-# Advent of Code 2023 Solutions
+# Advent of Code Solutions
 
 My solutions to AOC in Python. Relatively new to Python so the code might not be very pretty...
 
