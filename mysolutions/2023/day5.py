@@ -54,7 +54,7 @@ all_ranges = []
 # Without his help I was trying to iterate all values not realizing that 
 # the input dataset had millions to test...
 # Next time look at the input!
-def check_ranges2(parsed_data, p, rule):
+def check_ranges(maps, p, rule):
     if rule == 7:
         # We applied all 7 mappins save the last one which is the location
         all_ranges.append(p)
@@ -62,7 +62,7 @@ def check_ranges2(parsed_data, p, rule):
         
     # Check/apply mapping rules
     # Using the intervals so we can check and apply rules without iterating the values
-    for m in parsed_data['maps'][rule]:
+    for m in maps[rule]:
         # Calculate the source range of the rule
         p2 = P.closedopen(m['start'], m['finish'])
 
@@ -76,7 +76,7 @@ def check_ranges2(parsed_data, p, rule):
 
             # Intersection is not empty we have to map the source values 
             # to the destination using range 'add'
-            check_ranges(parsed_data, 
+            check_ranges(maps, 
                 P.closedopen(
                     intersection.lower + m['add'], 
                     intersection.upper + m['add']), 
@@ -93,8 +93,8 @@ def check_ranges2(parsed_data, p, rule):
     if p:
         # No mappings were done on this range, just pass it 
         # to the next mapping rule
-        check_ranges(parsed_data, p, rule + 1)
-    index += 1
+        check_ranges(maps, p, rule + 1)
+    
 
 def part_b(data):
     parsed_data = parse(data)
