@@ -9,32 +9,6 @@ Note: On Dec 25 there is only one puzzle, but you should return
 a tuple of 2 values anyway, e.g. (part_a_answer, None) the
 second value of the tuple will not be used regardless.
 
-Do whatever you want in your entry-point - you can import other
-modules, call a function, run a script or a subprocess, etc.
-If your existing code reads in data from a file, you could even
-write out a scratch file from this entry-point.
-
-For example, a sensible pattern might be something like:
-
-    def mysolve(year, day, data):
-        mod_name = "mypackage.aoc{}.day{}".format(year, day)
-        mod = importlib.import_module(mod_name)
-        a = mod.part_a(data)
-        b = mod.part_b(data)
-        return a, b
-
-Or you could leave answers in the module namespace:
-
-    mod = importlib.import_module(mod_name)
-    return mod.a, mod.b
-
-Or you could even just get them from a .py script print output:
-
-    answers = io.StringIO()
-    with redirect_stdout(answers):
-        mod = importlib.import_module(mod_name)
-    a, b = answers.getvalue().splitlines()
-
 The AOC_SESSION is set before invoking your entry-point, which
 means you can continue to use `from aocd import data` if you
 want - it's not strictly necessary to define worker functions
@@ -45,8 +19,7 @@ provides correct answers for each of the puzzle test cases!)
 import importlib
 
 def solve(year, day, data):
-    mod_name = "mysolutions.{}.day{}".format(year, day)
-    mod = importlib.import_module(mod_name)
-    a = mod.part_a(data)
-    b = mod.part_b(data)
+    day = importlib.import_module("mysolutions.{}.day{}".format(year, day))
+    a = day.part_a(data)
+    b = day.part_b(data)
     return a, b

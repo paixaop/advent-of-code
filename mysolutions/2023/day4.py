@@ -57,33 +57,11 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 
 test_data_part_b = test_data_part_a
 
-def test_a():
-    assert part_a(test_data_part_a) == 13
-    print("Test of Part A: PASSED")
-
-def test_b():
-    assert part_b(test_data_part_b) == 30
-    print("Test of Part B: PASSED")
-
 
 if __name__ == "__main__":
-    match = re.search(r'(\d{4}).day(\d+)\.py$', __file__)
-    if match is None: 
-        raise Exception('Need folder to be year\dayN.py')
-    
-    day = int(match.group(2))
-    year = int(match.group(1))
-    print("\n\nSolutions for {}/{}\n".format(year, day))
+    from mysolutions import common
+    data = common.get_data(__file__)
 
-    try:
-        from aocd import get_data
-        data = get_data(day=day, year=year)
-    except Exception as e:
-        print("Error: {}\n".format(e))
-        exit()
+    common.run(part_a, test_data_part_a, data, 13)
+    common.run(part_b, test_data_part_b, data, 30)
     
-    test_a()
-    print("Part A: {}\n".format(part_a(data)))
-
-    test_b()
-    print("Part B: {}\n".format(part_b(data)))

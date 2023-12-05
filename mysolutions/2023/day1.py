@@ -52,34 +52,10 @@ zoneight234
 7pqrstsixteen
 """
 
-def test_a():
-    assert part_a(test_data_part_a) == 142
-    print("Test of Part A: PASSED")
-
-def test_b():
-    assert part_b(test_data_part_b) == 281
-    print("Test of Part B: PASSED")
-
-
 if __name__ == "__main__":
-    match = re.search(r'(\d{4}).day(\d+)\.py$', __file__)
-    if match is None: 
-        raise Exception('Need folder to be year\dayN.py')
+    from mysolutions import common
+    data = common.get_data(__file__)
     
-    day = int(match.group(2))
-    year = int(match.group(1))
-    print("\n\nSolutions for {}/{}\n".format(year, day))
-
-    try:
-        from aocd import get_data
-        data = get_data(day=day, year=year)
-    except Exception as e:
-        print("Error: {}\n".format(e))
-        exit()
+    common.run(part_a, test_data_part_a, data, 142)
+    common.run(part_b, test_data_part_b, data, 281)
     
-    test_a()
-    print("Part A: {}\n".format(part_a(data)))
-
-    test_b()
-    print("Part B: {}\n".format(part_b(data)))
-
