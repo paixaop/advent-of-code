@@ -91,8 +91,12 @@ def test_b():
 
 
 if __name__ == "__main__":
-    day = 2
-    year = 2023
+    match = re.search(r'(\d{4}).day(\d+)\.py$', __file__)
+    if match is None: 
+        raise Exception('Need folder to be year\dayN.py')
+    
+    day = int(match.group(2))
+    year = int(match.group(1))
     print("\n\nSolutions for {}/{}\n".format(year, day))
 
     try:

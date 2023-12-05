@@ -45,7 +45,7 @@ provides correct answers for each of the puzzle test cases!)
 import importlib
 
 def solve(year, day, data):
-    mod_name = "mysolutions.aoc{}.day{}".format(year, day)
+    mod_name = "mysolutions.{}.day{}".format(year, day)
     mod = importlib.import_module(mod_name)
     a = mod.part_a(data)
     b = mod.part_b(data)
