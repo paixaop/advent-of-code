@@ -1,3 +1,41 @@
+"""
+Some math:
+
+```
+t = T - B    (1)
+```
+
+Where: 
+  - t is travel time
+  - T is race time, 
+  - B button pressed time)
+
+```
+D = t * B   (2)
+```
+
+Where
+  - D is the traveled distance
+  - t is the travel time
+  - B is the button pressed time
+
+subsituting `(1)` in `(2)` and simplifying we get
+
+```
+D = (T - B) * B 
+D = T*B - B^2      (3)
+B^2 - T*B - D = 0 
+```
+Now we can use the quadratic formula to solve for B, and setting D to the record distance
+
+```
+B1 = (T + SQRT(T*T - 4 * D))/2
+B2 = (T - SQRT(T*T - 4 * D))/2
+```
+
+Number of Races that set a new record B1 - B2
+"""
+
 import re
 from functools import reduce
 import math
@@ -26,12 +64,9 @@ def part_a(data):
 
 def part_b(data):
     data = data.split('\n')
-    total = 0
     time = int(data[0][5:].replace(" ", ""))
     distance = int(data[1][9:].replace(" ", ""))
 
-    # iterate races
-    good_races = []
     s1 = int((time + math.sqrt(pow(time, 2) - 4 * distance))/2)
     s2 = int((time - math.sqrt(pow(time, 2) - 4 * distance))/2)
 
