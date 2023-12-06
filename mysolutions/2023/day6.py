@@ -65,12 +65,12 @@ def part_a(data):
 def part_b(data):
     data = data.split('\n')
     time = int(data[0][5:].replace(" ", ""))
-    distance = int(data[1][9:].replace(" ", ""))
+    distance = int(data[1][9:].replace(" ", "")) + 1
 
-    s1 = int((time + math.sqrt(pow(time, 2) - 4 * distance))/2)
-    s2 = int((time - math.sqrt(pow(time, 2) - 4 * distance))/2)
+    s1 = math.floor((time + math.sqrt(pow(time, 2) - 4 * distance))/2)
+    s2 = math.ceil((time - math.sqrt(pow(time, 2) - 4 * distance))/2)
 
-    return s1 - s2
+    return s1 - s2 + 1
 
 def part_b_brute_force(data):
     data = data.split('\n')
