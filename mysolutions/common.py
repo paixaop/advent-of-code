@@ -20,6 +20,8 @@ def yellow(s):
 def green(s):
     return bcolors.OKGREEN + str(s) + bcolors.ENDC
 
+def all_int(l):
+    return list(map(int, l))
 
 def get_data(file):    
     match = re.search(r'(\d{4}).day(\d+)\.py$', file)
