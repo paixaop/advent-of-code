@@ -37,6 +37,15 @@ def move(stacks, n, from_stack, to_stack):
         stacks[to_stack].append(box)
     return stacks
 
+def pop_n(list1, n):
+    del list1[:-n]
+    return list1
+
+def create_mover_9001(stacks, n, from_stack, to_stack):
+    boxes = stacks[from_stack][-n:]
+    del stacks[from_stack][-n:]
+    stacks[to_stack] += boxes
+
 def part_a(data):
     data = parse(data)
     stacks = data['stacks']
@@ -52,15 +61,17 @@ def part_a(data):
 
 
 def part_b(data):
-    data = data.split("\n")
+    data = parse(data)
+    stacks = data['stacks']
+    moves = data['moves']
+
+    for m in moves:
+        create_mover_9001(stacks, m['boxes'], m['from'], m['to'])
     
-    total = 0
-    for line in data:
-        if line == '':
-            break
-        
-        
-    return total
+    str = ''
+    for s in stacks:
+        str += s[-1]
+    return str
 
 test_data_part_a = """\
     [D]    
@@ -81,4 +92,4 @@ if __name__ == "__main__":
     data = common.get_data(__file__)
     
     common.run(part_a, test_data_part_a, data, 'CMZ')
-    common.run(part_b, test_data_part_b, data, 4)
+    common.run(part_b, test_data_part_b, data, 'MCD')
