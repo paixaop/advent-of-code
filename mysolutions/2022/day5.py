@@ -37,10 +37,6 @@ def move(stacks, n, from_stack, to_stack):
         stacks[to_stack].append(box)
     return stacks
 
-def pop_n(list1, n):
-    del list1[:-n]
-    return list1
-
 def create_mover_9001(stacks, n, from_stack, to_stack):
     boxes = stacks[from_stack][-n:]
     del stacks[from_stack][-n:]
