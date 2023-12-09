@@ -10,7 +10,7 @@ def process(data):
         history.append(delta)
         j += 1
 
-        if all(val == 0 for val in delta):
+        if not any(delta):
             history[j].append(0)
 
             for i in range(j, 0, -1):
