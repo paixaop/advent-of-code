@@ -15,7 +15,8 @@ setup(
     ],
     install_requires=[
         "advent-of-code-data >= 2.0.1",
-        "portion"
+        "portion",
+        "more_itertools"
         # list your other requirements here, for example:
         # "numpy", "parse", "networkx",
     ],
