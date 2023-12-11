@@ -88,7 +88,7 @@ def connections_start(data, x, y):
 
     return possible
 
-def loop_length(data, start_x, start_y):
+def loop_coords(data, start_x, start_y):
     x = start_x
     y = start_y
     visited = []
@@ -142,7 +142,7 @@ def part_a(data):
     possible = connections_start(data, x_S, y_S)
     data[y_S][x_S] = possible[0]['start']
 
-    loop = loop_length(data, x_S, y_S)
+    loop = loop_coords(data, x_S, y_S)
     return int(len(loop)/2)
 
     
