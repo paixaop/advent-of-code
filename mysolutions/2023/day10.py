@@ -154,7 +154,7 @@ def part_b(data):
     possible = connections_start(data, x_S, y_S)
     data[y_S][x_S] = possible[0]['start']
     count = 0
-    loop = loop_length(data, x_S, y_S)
+    loop = loop_coords(data, x_S, y_S)
     for y, l in enumerate(data):
         for x, c in enumerate(l):
             p = [x, y] 
