@@ -4,6 +4,14 @@ from mysolutions import common
 def parse(data):
     data = data.split("\n")
 
+    parsed = {}
+    for line in data:
+        pass
+
+    return {
+
+    }
+
 def part_a(data):
     data = parse(data)
     total = 0
