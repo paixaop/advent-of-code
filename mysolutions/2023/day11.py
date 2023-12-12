@@ -26,7 +26,6 @@ def parse(data):
         if '#' not in column:
             empty_columns.append(i)
         i += 1
-    delta_empty_columns = [b - a for a, b in zip(empty_columns, empty_columns[1:])]
 
     i = 0
     empty_rows = []
@@ -35,14 +34,11 @@ def parse(data):
         if '#' not in row:
             empty_rows.append(i)
         i += 1
-    delta_empty_rows = [b - a for a, b in zip(empty_rows, empty_rows[1:])]
 
     return {
         "universe": data,
         "empty_rows": empty_rows,
-        "delta_empty_rows": delta_empty_rows,
         "empty_columns": empty_columns,
-        "delta_empty_columns": delta_empty_columns
     }
 
 def count_empties(empties, cord):
@@ -55,20 +51,19 @@ def count_empties(empties, cord):
 
     return count
 
-def expand(empties, deltas, cord, expand_factor):
+def expand(empties, cord, expand_factor):
     count = count_empties(empties, cord)
     if count != 0:
-        incr = sum(deltas[:count])
         return cord + count * expand_factor - count
     return cord
 
 def get_galaxy_coords(data, expand_factor):
     galaxies = []
     for y, row in enumerate(data["universe"]):
-        y = expand(data['empty_rows'], data['delta_empty_rows'], y, expand_factor)
+        y = expand(data['empty_rows'], y, expand_factor)
         for x, char in enumerate(row):
             if char == '#':
-                x = expand(data['empty_columns'], data['delta_empty_columns'], x, expand_factor)
+                x = expand(data['empty_columns'], x, expand_factor)
                 galaxies.append((x, y))
 
     return galaxies
