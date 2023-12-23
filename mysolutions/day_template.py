@@ -1,8 +1,7 @@
-import re
 from mysolutions import common
 
 def parse(data):
-    data = data.split("\n")
+    data = data.splitlines()
 
     parsed = {}
     for line in data:
