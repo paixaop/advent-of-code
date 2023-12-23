@@ -79,4 +79,4 @@ if __name__ == "__main__":
     data = common.get_data(__file__)
     
     common.run(part_a, test_data_part_a, data, 136)
-    common.run(part_b, test_data_part_b, data, 0)
+    common.run(part_b, test_data_part_b, data, 64)
