@@ -20,6 +20,9 @@ def yellow(s):
 def green(s):
     return bcolors.OKGREEN + str(s) + bcolors.ENDC
 
+def red(s):
+    return bcolors.WARNING + str(s) + bcolors.ENDC
+
 def all_int(l):
     return list(map(int, l))
 
@@ -42,6 +45,10 @@ def get_data(file):
     return data
 
 def run(func, test_data, data, value):
-    assert func(test_data) == value
-    print(f"Test of Part A: {green("PASSED")}")
+    if value: 
+        assert func(test_data) == value
+        print(f"Test of Part A: {green("PASSED")}")
+    else:
+        print(f"Test of Part A: {red("IGNORED")}")
+    
     print(f"Part A Solution: {yellow(func(data))}\n")
