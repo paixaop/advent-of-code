@@ -1,4 +1,5 @@
 import re
+import os
 
 class bcolors:
     HEADER = '\033[95m'
@@ -36,8 +37,16 @@ def get_data(file):
     print(f"\n\nSolutions for {bcolors.BOLD}{year}/{day}{bcolors.ENDC}\n")
 
     try:
+        script_dir = os.path.dirname(file) #<-- absolute dir the script is in
+        rel_path = f"input/{day}.txt"
+        abs_file_path = os.path.join(script_dir, rel_path)
+        if os.path.isfile(abs_file_path):
+            data = open(abs_file_path).read()
+            return data
+        
         from aocd import get_data
         data = get_data(day=day, year=year)
+        
     except Exception as e:
         print("Error: {}\n".format(e))
         exit()
