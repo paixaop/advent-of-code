@@ -111,16 +111,38 @@ def part_a(data):
     data = parse(data)
     visited = set()
     beam(data)
+    
+    return energized()
+
+def energized():
+    global visited
+
     t = set()
     for item in visited:
         t.add((item[0], item[1]))
-
     return len(t)
 
+def run_beam(data, row, col, direction):
+    global visited
+
+    visited = set()
+    beam(data, row, col, direction)
+    return energized()
 
 def part_b(data):
+    global visited
     data = parse(data)
+    
     total = 0
+    for row in range(len(data)):
+        e = run_beam(data, row, 0, EAST)
+        w = run_beam(data, row, len(data[0]) - 1, WEST)
+        total = max([total, e, w])
+    
+    for col in range(1, len(data[0])):
+        s = run_beam(data, 0, col, SOUTH)
+        n = run_beam(data, len(data) - 1, col, NORTH)
+        total = max([total, s, n])
 
     return total
 
@@ -143,4 +165,4 @@ if __name__ == "__main__":
     data = common.get_data(__file__)
     sys.setrecursionlimit(10000)
     common.run(part_a, test_data_part_a, data, 46)
-    common.run(part_b, test_data_part_b, data, 0)
+    common.run(part_b, test_data_part_b, data, 51)
