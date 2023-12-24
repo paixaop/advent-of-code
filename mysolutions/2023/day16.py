@@ -106,14 +106,6 @@ def beam(contraption, row= 0, col= 0, direction= EAST):
 
     return
 
-def part_a(data):
-    global visited
-    data = parse(data)
-    visited = set()
-    beam(data)
-    
-    return energized()
-
 def energized():
     global visited
 
@@ -122,12 +114,17 @@ def energized():
         t.add((item[0], item[1]))
     return len(t)
 
-def run_beam(data, row, col, direction):
+def run_beam(data, row=0, col=0, direction=EAST):
     global visited
 
     visited = set()
     beam(data, row, col, direction)
     return energized()
+
+def part_a(data):
+    data = parse(data)
+    
+    return run_beam(data)
 
 def part_b(data):
     global visited
