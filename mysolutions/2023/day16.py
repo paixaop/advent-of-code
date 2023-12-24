@@ -17,7 +17,6 @@ SOUTH = 1
 WEST = 2
 NORTH = 3
 
-
 def next_step(char, row, col, direction):
     if char == ".":
         if direction == NORTH:
@@ -109,9 +108,7 @@ def beam(contraption, row= 0, col= 0, direction= EAST):
 def energized():
     global visited
 
-    t = set()
-    for item in visited:
-        t.add((item[0], item[1]))
+    t = {(row, col) for (row, col, _) in visited }
     return len(t)
 
 def run_beam(data, row=0, col=0, direction=EAST):
