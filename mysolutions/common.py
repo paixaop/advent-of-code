@@ -55,7 +55,8 @@ def get_data(file):
 
 def run(func, test_data, data, value):
     if value: 
-        assert func(test_data) == value
+        result = func(test_data)
+        assert  result == value, f"Assertion Failed: {result} != {value}"
         print(f"Test of Part A: {green('PASSED')}")
     else:
         print(f"Test of Part A: {red('IGNORED')}")
