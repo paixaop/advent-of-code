@@ -12,84 +12,154 @@ def parse(data):
 
 MAX_STRAIGHT = 3
 
+def aoc17(grid):
+    seen = set()
+    pq = [(0, 0, 0, 0, 0, 0)]
+
+    while pq:
+        hl, r, c, dr, dc, n = heappop(pq)
+        
+        if r == len(grid) - 1 and c == len(grid[0]) - 1:
+            print(hl)
+            break
+
+        if (r, c, dr, dc, n) in seen:
+            continue
+
+        seen.add((r, c, dr, dc, n))
+        
+        if n < 3 and (dr, dc) != (0, 0):
+            nr = r + dr
+            nc = c + dc
+            if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):
+                heappush(pq, (hl + grid[nr][nc], nr, nc, dr, dc, n + 1))
+
+        for ndr, ndc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            if (ndr, ndc) != (dr, dc) and (ndr, ndc) != (-dr, -dc):
+                nr = r + ndr
+                nc = c + ndc
+                if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):
+                    heappush(pq, (hl + grid[nr][nc], nr, nc, ndr, ndc, 1))
+
+
 def get_next(path, current, length= MAX_STRAIGHT):
-    rows = set()
-    cols = set()
+    arrows = []
     n = 0
     pos = current
     if pos in path:
-        if pos == (0,0): # at the start
-            return [(1, 0), (0, 1)]
+        (curr_row, curr_col, curr_arrow) = pos
+        if (curr_row, curr_col) == (0,0): # at the start
+            return [(1, 0, "v"), (0, 1, ">")]
         
-        (curr_row, curr_col) = pos
         while pos and n < length:
-            (r, c) = pos
-            rows.add(r)
-            cols.add(c)
+            (r, c, arrow) = pos
+            arrows.append(arrow)
             pos = path[pos]
             n += 1
-        if n == length:
-            if len(rows) == 1: # Moving horizontally
-                return [(curr_row-1, curr_col), (curr_row+1, curr_col)] # Must go up or down
-            elif len(cols) == 1: # Moving vertically
-                return [(curr_row, curr_col-1), (curr_row, curr_col+1)] # Must go left or right
-        
-        (prev_row, prev_col) = path[current]
 
-        if prev_row == curr_row: # Moving horizontally
-            if prev_col < curr_col: # Moving right -> can go up, down and right
-                return [(curr_row-1, curr_col), (curr_row+1, curr_col), (curr_row, curr_col+1)]
-            else: # Moving left -> can go up, down and left
-                return [(curr_row-1, curr_col), (curr_row+1, curr_col), (curr_row, curr_col-1)]
-        elif prev_col == curr_col: # Moving vertically
-            if prev_row < curr_row: # Moving down -> can go down, left and right
-                return [(curr_row+1, curr_col), (curr_row, curr_col-1), (curr_row, curr_col+1)]
-            else: # Moving up -> can go up, left and right
-                return [(curr_row-1, curr_col), (curr_row+1, curr_col), (curr_row, curr_col-1)]
+        if n == length:
+            if arrows.count(">") == n or arrows.count("<") == n: # Moving horizontally
+                return [(curr_row-1, curr_col, "^"), (curr_row+1, curr_col, "v")] # Must go up or down
+            elif arrows.count("^") == n or arrows.count("v") == n: # Moving vertically
+                return [(curr_row, curr_col-1, "<"), (curr_row, curr_col+1, ">")] # Must go left or right
+        
+        (prev_row, prev_col, prev_arrow) = path[current]
+
+        if curr_arrow == ">": # Moving right -> can go up, down and right
+            return [(curr_row-1, curr_col, "^"), (curr_row+1, curr_col, "v"), (curr_row, curr_col+1, ">")]
+        elif curr_arrow == "<": # Moving left -> can go up, down and left
+            return [(curr_row-1, curr_col, "^"), (curr_row+1, curr_col, "v"), (curr_row, curr_col-1, "<")]
+        elif curr_arrow == "v": # Moving down -> can go down, left and right
+            return [(curr_row+1, curr_col, "v"), (curr_row, curr_col-1, "<"), (curr_row, curr_col+1, ">")]
+        else: # Moving up -> can go up, left and right
+            return [(curr_row-1, curr_col, "^"), (curr_row, curr_col-1, "<"), (curr_row, curr_col+1, ">")]
     return []
     
 def in_bounds(data, pos):
-    (r, c) = pos
+    (r, c, _) = pos
     return 0 <= r < len(data) and 0 <= c < len(data[0])
 
 def cost(data, pos):
     if in_bounds(data, pos):
-        (r, c) = pos
+        (r, c, _) = pos
         return data[r][c]
     return 0
 
 def neighbors(data, came_from, pos):
     if not in_bounds(data, pos):
         return []
-    neighbors = get_next(came_from, pos)
-    results = filter(lambda n: in_bounds(data, n), neighbors)
-    return list(results)
+    results = get_next(came_from, pos)
+    return results
 
-    
-def dijkstra_search(data, start, goal, draw=True):
+def dijkstra_search2(data, start, goal, draw=True):
+    start =  (start[0], start[1], "o")
     pq = [(0, start)]
     came_from = {}
     cost_so_far = {}
     came_from[start] = None
     cost_so_far[start] = 0
+
     
     while pq:
-        _, current = heappop(pq)       
-        if current == goal:
+        heat_loss, current = heappop(pq)
+        (r, c, _) = current 
+        if (r, c) == goal:
             break
         
-        goto = neighbors(data, came_from, current)
-        for next in goto:
+        goto = get_next(came_from, current)
+        neighbors = list(filter(lambda n: in_bounds(data, n), goto))
+        for next in neighbors:
             new_cost = cost_so_far[current] + cost(data, next)
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
                 heappush(pq, (new_cost, next))
                 came_from[next] = current
     
-    if draw:
-        draw_path(data, came_from, start, goal)
+    min_cost = 0
+    end = start
+    for arrow in ["<", ">", "^", "v"]:
+        g = (goal[0], goal[1], arrow)
+        if g in cost_so_far:
+            if end == start or min_cost > cost_so_far[g]:
+                min_cost = cost_so_far[g]
+                end = g
 
-    return cost_so_far[goal]
+    if draw:
+        draw_path(data, came_from, start, end)
+
+    return cost_so_far[end]
+
+    
+def dijkstra_search(data, start, goal, draw=True):
+    start =  (start[0], start[1], "o")
+    pq = [(0, start)]
+    came_from = {}
+    came_from[start] = None
+    seen = set()
+    
+    while pq:
+        heat_loss, current = heappop(pq)
+        (r, c, _) = current 
+        if (r, c) == goal:
+            min_cost = heat_loss
+            break
+        
+        if current in seen:
+            continue
+        
+        seen.add(current)
+
+        goto = get_next(came_from, current)
+        neighbors = list(filter(lambda n: in_bounds(data, n), goto))
+        for next in neighbors:
+            new_heat_loss = heat_loss + cost(data, next)
+            heappush(pq, (new_heat_loss, next))
+            came_from[next] = current
+
+    if draw:
+        draw_path(data, came_from, start, current)
+
+    return cost_so_far[end]
 
 def draw_path(data, path, start, goal):
     d = []
@@ -98,20 +168,9 @@ def draw_path(data, path, start, goal):
     pos = goal
     while pos != start:
         if pos in path:
-            (r, c) = pos
+            (r, c, a) = pos
             next = path[pos]
-            (rn, cn) = next
-            if r == rn:
-                if c > cn:
-                    d[r][c]='>'
-                else:
-                    d[r][c]='<'
-            elif c == cn:
-                if r > rn:
-                    d[r][c]='v'
-                else:
-                    d[r][c]='^'
-            #d[r][c] = "#"
+            d[r][c] = a
             pos = next
 
     for row in d: 
@@ -123,6 +182,7 @@ def part_a(data):
     start = (0, 0)
     goal = (len(data) - 1, len(data[0]) - 1)
     total = dijkstra_search(data, start, goal)
+    #aoc17(data)
     
     return total
 
