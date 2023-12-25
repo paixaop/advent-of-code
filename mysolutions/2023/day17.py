@@ -12,37 +12,6 @@ def parse(data):
 
 MAX_STRAIGHT = 3
 
-def aoc17(grid):
-    seen = set()
-    pq = [(0, 0, 0, 0, 0, 0)]
-
-    while pq:
-        hl, r, c, dr, dc, n = heappop(pq)
-        
-        if r == len(grid) - 1 and c == len(grid[0]) - 1:
-            print(hl)
-            break
-
-        if (r, c, dr, dc, n) in seen:
-            continue
-
-        seen.add((r, c, dr, dc, n))
-        
-        if n < 3 and (dr, dc) != (0, 0):
-            nr = r + dr
-            nc = c + dc
-            if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):
-                heappush(pq, (hl + grid[nr][nc], nr, nc, dr, dc, n + 1))
-
-        for ndr, ndc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-            if (ndr, ndc) != (dr, dc) and (ndr, ndc) != (-dr, -dc):
-                nr = r + ndr
-                nc = c + ndc
-                if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):
-                    heappush(pq, (hl + grid[nr][nc], nr, nc, ndr, ndc, 1))
-
-
-
 def in_bounds(data, pos):
     (r, c) = pos
     return 0 <= r < len(data) and 0 <= c < len(data[0])
@@ -74,11 +43,10 @@ def dijkstra_search(data, start, goal, draw=True):
         if n < MAX_STRAIGHT and (dr,dc) != (0, 0):
             next_row = row + dr
             next_col = col + dc
-            next = (next_row, next_col, dr, dc, n + 1)
-            
+
             if in_bounds(data, (next_row, next_col)):
                 next_heat_loss = heat_loss + data[next_row][next_col]
-                heappush(pq, (next_heat_loss, next))
+                heappush(pq, (next_heat_loss, (next_row, next_col, dr, dc, n + 1)))
             
 
         neighbors = [(-1, 0), (1 , 0), (0, -1), (0, 1)]
@@ -86,10 +54,10 @@ def dijkstra_search(data, start, goal, draw=True):
             if (ndr, ndc) != (dr, dc) and (ndr, ndc) != (-dr, -dc):
                 next_row = row + ndr
                 next_col = col + ndc
-                next = (next_row, next_col, ndr, ndc, 1)
+                
                 if in_bounds(data, (next_row, next_col)):
                     next_heat_loss = heat_loss + data[next_row][next_col]
-                    heappush(pq, (next_heat_loss, next))
+                    heappush(pq, (next_heat_loss, (next_row, next_col, ndr, ndc, 1)))
             
     return -1
          
