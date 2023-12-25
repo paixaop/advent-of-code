@@ -16,7 +16,7 @@ def in_bounds(data, pos):
     (r, c) = pos
     return 0 <= r < len(data) and 0 <= c < len(data[0])
 
-def dijkstra_search(data, start, goal, draw=True):
+def dijkstra_search(data, start, goal, straight_lenght= MAX_STRAIGHT, min_distance = 1):
     if not in_bounds(data, start) or not in_bounds(data, goal):
         return -1
     
@@ -40,7 +40,7 @@ def dijkstra_search(data, start, goal, draw=True):
             continue
         
         seen.add(current)
-        if n < MAX_STRAIGHT and (dr,dc) != (0, 0):
+        if n < straight_lenght and (dr,dc) != (0, 0):
             next_row = row + dr
             next_col = col + dc
 
@@ -48,6 +48,8 @@ def dijkstra_search(data, start, goal, draw=True):
                 next_heat_loss = heat_loss + data[next_row][next_col]
                 heappush(pq, (next_heat_loss, (next_row, next_col, dr, dc, n + 1)))
             
+            if n < min_distance:
+                continue
 
         neighbors = [(-1, 0), (1 , 0), (0, -1), (0, 1)]
         for ndr, ndc in neighbors:
@@ -63,18 +65,20 @@ def dijkstra_search(data, start, goal, draw=True):
          
 def part_a(data):
     data = parse(data)
-    total = 0
+
     start = (0, 0)
     goal = (len(data) - 1, len(data[0]) - 1)
     total = dijkstra_search(data, start, goal)
-    #aoc17(data)
     
     return total
 
 
 def part_b(data):
     data = parse(data)
-    total = 0
+
+    start = (0, 0)
+    goal = (len(data) - 1, len(data[0]) - 1)
+    total = dijkstra_search(data, start, goal, 10, 4)
 
     return total
 
