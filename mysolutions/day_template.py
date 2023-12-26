@@ -3,13 +3,11 @@ from mysolutions import common
 def parse(data):
     data = data.splitlines()
 
-    parsed = {}
+    parsed = []
     for line in data:
-        pass
+        parsed.append(list(line))
 
-    return {
-
-    }
+    return parsed
 
 def part_a(data):
     data = parse(data)
