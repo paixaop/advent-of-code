@@ -7,6 +7,14 @@ DIRECTIONS = {
     "R": ( 0,  1)
 }
 
+DIRECTIONS_B = {
+    "3": (-1,  0),
+    "1": ( 1,  0),
+    "2": ( 0, -1),
+    "0": ( 0,  1)
+}
+
+
 def parse(data):
     data = data.splitlines()
 
@@ -17,32 +25,26 @@ def parse(data):
         if m:
             m = m[0]
             parsed.append({
-                "dir" : m[0],
+                "dir" : DIRECTIONS[m[0]],
                 "length": int(m[1]),
                 "color": m[2]
             })
-        
     return parsed
 
-# e.g. corners = [(2.0, 1.0), (4.0, 5.0), (7.0, 8.0)]
-def area(corners):
-    n = len(corners) # of corners
-    area = 0.0
-    for i in range(n):
-        j = (i + 1) % n
-        area += corners[i][0] * corners[j][1]
-        area -= corners[j][0] * corners[i][1]
-    area = abs(area) / 2.0
-    return int(area)
+def parse_b(data):
+    data = data.splitlines()
 
-def area2(vertices):
-    n = len(vertices) # of corners
-    a = 0.0
-    for i in range(n):
-        j = (i + 1) % n
-        a += abs(vertices[i][0] * vertices[j][1]-vertices[j][0] * vertices[i][1])
-    result = a / 2.0
-    return result
+    parsed = []
+    pattern = re.compile(r"#([0-9a-fA-F]+)")
+    for line in data:
+        color = re.findall(pattern, line)
+        if color:
+            color = color[0]
+            parsed.append({
+                "dir" : DIRECTIONS_B[color[-1]],
+                "length": int(color[:-1], 16)
+            })
+    return parsed
 
 def shoelace_area(vertices):
     n = len(vertices)
@@ -53,30 +55,31 @@ def shoelace_area(vertices):
     l=abs(a1-a2)/2
     return l
 
-def part_a(data):
-    data = parse(data)
-    total = 0
+def calculate_trench_area(data):
     r = 0
     c = 0
     polygon = [(0, 0)]
     trench_lengh = 0
     for dig in data:
-        dr, dc = DIRECTIONS[dig["dir"]]
+        dr, dc = dig["dir"]
         r += dig["length"] * dr
         c += dig["length"] * dc
         trench_lengh += dig["length"]
         polygon.append((r, c))
 
     area = int(shoelace_area(polygon)) + trench_lengh // 2 + 1
-    
+    return area
+
+def part_a(data):
+    data = parse(data)
+    area = calculate_trench_area(data)
     return area
 
 
 def part_b(data):
-    data = parse(data)
-    total = 0
-
-    return total
+    data = parse_b(data)
+    area = calculate_trench_area(data)
+    return area
 
 test_data_part_a = """\
 R 6 (#70c710)
@@ -101,4 +104,4 @@ if __name__ == "__main__":
     data = common.get_data(__file__)
     
     common.run(part_a, test_data_part_a, data, 62)
-    common.run(part_b, test_data_part_b, data, 0)
+    common.run(part_b, test_data_part_b, data, 952408144115)
