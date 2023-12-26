@@ -1,5 +1,10 @@
 from mysolutions import common
 import re
+import portion as P
+import math
+import copy 
+
+MAX_RATING = 4000
 
 def parse(data):
     data = data.split("\n\n")
@@ -22,11 +27,22 @@ def parse(data):
             for actions_str in m[1].split(','):
                 m2 = re.search(workflow_action_re, actions_str)
                 if m2:
+                    op = m2.group(2)
+                    value = int(m2.group(3))
+                    if op == "<":
+                        accepted = P.closedopen(1, value)
+                        rejected = P.closed(value, MAX_RATING)
+                    else:
+                        accepted = P.openclosed(value, 4000)
+                        rejected = P.closed(1, value)
+
                     parsed["workflows"][name]["actions"].append({
                         "category": m2.group(1),
-                        "op": m2.group(2),
-                        "value": int(m2.group(3)),
-                        "next": m2.group(4)
+                        "op": op,
+                        "value": value,
+                        "next": m2.group(4),
+                        "accepted": accepted,
+                        "rejected": rejected
                     })
                 if actions_str and not m2:
                     parsed["workflows"][name]["default"] = actions_str
@@ -69,7 +85,7 @@ def part_a(data):
             if next == "A":
                 total += part["x"] + part["m"] + part["a"] + part["s"]
                 continue
-            
+
             if next == "R":
                 continue
 
@@ -83,12 +99,66 @@ def part_a(data):
 
     return total
 
+def combs(p):
+    if not p:
+        return 0
+    
+    low = p.lower
+    up = p.upper
+    if p.left == P.OPEN:
+        low += 1
+    if p.right == P.OPEN:
+        up -= 1
+    return up - low + 1
+
+def rule_combinations(data, wkflow_name, accepted = None):
+    if not accepted:
+        accepted = {
+            "x": P.closed(1, 4000),
+            "m": P.closed(1, 4000),
+            "a": P.closed(1, 4000),
+            "s": P.closed(1, 4000)
+        }
+
+    if wkflow_name == "A":
+        a = math.prod([combs(i) for i in accepted.values()])
+        return a
+    
+    if wkflow_name == "R":
+        return 0
+    
+    if wkflow_name not in data["workflows"]:
+        return 0
+    
+    total = 0
+    wkflow = data["workflows"][wkflow_name]
+    default = wkflow["default"]
+    nr = {
+            "x": P.closed(1, 4000),
+            "m": P.closed(1, 4000),
+            "a": P.closed(1, 4000),
+            "s": P.closed(1, 4000)
+        }
+    na = copy.deepcopy(accepted)
+    for action in wkflow["actions"]:
+        next = action["next"]
+        na[action["category"]] &= action["accepted"]
+        total += rule_combinations(data, next, accepted = na)
+
+        nr[action["category"]] &= action["rejected"]
+        na[action["category"]] = accepted[action["category"]] & action["rejected"]
+    
+    na = {x[0]: x[1] & y[1] for x, y in list(zip(accepted.items(), nr.items()))}
+    total += rule_combinations(data, default, accepted = na)
+
+    return total
 
 def part_b(data):
-
     data = parse(data)
     total = 0
-
+    
+    total = rule_combinations(data, "in")
+    
     return total
 
 test_data_part_a = """\
@@ -117,4 +187,4 @@ if __name__ == "__main__":
     data = common.get_data(__file__)
     
     common.run(part_a, test_data_part_a, data, 19114)
-    common.run(part_b, test_data_part_b, data, 0)
+    common.run(part_b, test_data_part_b, data, 167409079868000) 
