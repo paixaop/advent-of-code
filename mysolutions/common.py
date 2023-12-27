@@ -57,8 +57,8 @@ def run(func, test_data, data, value):
     if value: 
         result = func(test_data)
         assert  result == value, f"Assertion Failed: {result} != {value}"
-        print(f"Test of Part A: {green('PASSED')}")
+        print(f"Test: {green('PASSED')}")
     else:
-        print(f"Test of Part A: {red('IGNORED')}")
+        print(f"Test: {red('IGNORED')}")
     
-    print(f"Part A Solution: {yellow(func(data))}\n")
+    print(f"Solution: {yellow(func(data))}\n")
