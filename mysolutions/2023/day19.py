@@ -111,54 +111,47 @@ def combs(p):
         up -= 1
     return up - low + 1
 
-def rule_combinations(data, wkflow_name, accepted = None):
-    if not accepted:
-        accepted = {
-            "x": P.closed(1, 4000),
-            "m": P.closed(1, 4000),
-            "a": P.closed(1, 4000),
-            "s": P.closed(1, 4000)
-        }
+def log(name, ranges={}, next="", value=0):
+    print(f"name:{name} {ranges=} -> {next=}, {value=}")
 
-    if wkflow_name == "A":
-        a = math.prod([combs(i) for i in accepted.values()])
-        return a
-    
+def rule_combinations(data, wkflow_name = "in", accepted = None):
     if wkflow_name == "R":
+        # log(wkflow_name, ranges=accepted, next="Rejected")
         return 0
+    
+    if wkflow_name == "A":
+        prod = math.prod([combs(i) for i in accepted.values()])
+        # log(wkflow_name, ranges=accepted, next="Accepted", value= prod)
+        return prod
     
     if wkflow_name not in data["workflows"]:
         return 0
+
+    if not accepted:
+       accepted = { key: P.closed(1, 4000) for key in "xmas" } 
     
+    # log(wkflow_name, ranges=accepted)
     total = 0
     wkflow = data["workflows"][wkflow_name]
-    default = wkflow["default"]
-    nr = {
-            "x": P.closed(1, 4000),
-            "m": P.closed(1, 4000),
-            "a": P.closed(1, 4000),
-            "s": P.closed(1, 4000)
-        }
-    na = copy.deepcopy(accepted)
-    for action in wkflow["actions"]:
-        next = action["next"]
-        na[action["category"]] &= action["accepted"]
-        total += rule_combinations(data, next, accepted = na)
-
-        nr[action["category"]] &= action["rejected"]
-        na[action["category"]] = accepted[action["category"]] & action["rejected"]
     
-    na = {x[0]: x[1] & y[1] for x, y in list(zip(accepted.items(), nr.items()))}
-    total += rule_combinations(data, default, accepted = na)
+    nr = dict(accepted)
+    na = dict(accepted)
+    for rule in wkflow["actions"]:
+        key = rule["category"]
+
+        na[key] &= rule["accepted"]
+        nr[key] &= rule["rejected"]
+    
+        total += rule_combinations(data, rule["next"], accepted = na)
+        na[key] = accepted[key] & nr[key]
+    
+    total += rule_combinations(data, wkflow["default"], accepted = na)
 
     return total
 
 def part_b(data):
     data = parse(data)
-    total = 0
-    
-    total = rule_combinations(data, "in")
-    
+    total = rule_combinations(data)  
     return total
 
 test_data_part_a = """\
