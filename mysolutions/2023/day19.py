@@ -114,38 +114,38 @@ def combs(p):
 def log(name, ranges={}, next="", value=0):
     print(f"name:{name} {ranges=} -> {next=}, {value=}")
 
-def rule_combinations(data, wkflow_name = "in", accepted = None):
+def rule_combinations(data, wkflow_name = "in", ranges = None):
     if wkflow_name == "R":
-        # log(wkflow_name, ranges=accepted, next="Rejected")
+        # log(wkflow_name, ranges=ranges, next="Rejected")
         return 0
     
     if wkflow_name == "A":
-        prod = math.prod([combs(i) for i in accepted.values()])
-        # log(wkflow_name, ranges=accepted, next="Accepted", value= prod)
+        prod = math.prod([combs(i) for i in ranges.values()])
+        # log(wkflow_name, ranges=ranges, next="Accepted", value= prod)
         return prod
     
     if wkflow_name not in data["workflows"]:
         return 0
 
-    if not accepted:
-       accepted = { key: P.closed(1, 4000) for key in "xmas" } 
+    if not ranges:
+       ranges = { key: P.closed(1, 4000) for key in "xmas" } 
     
-    # log(wkflow_name, ranges=accepted)
+    # log(wkflow_name, ranges=ranges)
     total = 0
     wkflow = data["workflows"][wkflow_name]
     
-    nr = dict(accepted)
-    na = dict(accepted)
+    nr = dict(ranges)
+    na = dict(ranges)
     for rule in wkflow["actions"]:
         key = rule["category"]
 
         na[key] &= rule["accepted"]
         nr[key] &= rule["rejected"]
     
-        total += rule_combinations(data, rule["next"], accepted = na)
-        na[key] = accepted[key] & nr[key]
+        total += rule_combinations(data, rule["next"], ranges = na)
+        na[key] = ranges[key] & nr[key]
     
-    total += rule_combinations(data, wkflow["default"], accepted = na)
+    total += rule_combinations(data, wkflow["default"], ranges = na)
 
     return total
 
