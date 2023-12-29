@@ -6,6 +6,7 @@ FLIP_FLOP = "flip_flop"
 CONJUNCTION = "conjunction" 
 BROADCASTER = "broadcaster"
 BUTTON = "button"
+OUTPUT = "output"
 
 MODULE_TYPES = {
     "%": FLIP_FLOP,
@@ -13,12 +14,43 @@ MODULE_TYPES = {
     "b": BROADCASTER
 }
 
+queue = []
+counter = {}
 
+def enqueue(ele):
+    global queue
+    global counter
+
+    if ele:
+        count_pulse({ ele["pulse"] : 1})
+        queue.append(ele)
+
+def dequeue():
+    global queue
+
+    if queue:
+        return queue.pop(0)
+    
+    return None
+
+
+def count_pulse(value):
+    global counter
+
+    if LOW not in counter:
+        counter[LOW] = 0
+
+    if HIGH not in counter:
+        counter[HIGH] = 0
+
+    for pulse, count in value.items():
+        counter[pulse] += count
 
 def parse(data):
     data = data.splitlines()
 
     parsed = {}
+    all_outputs = set()
     for line in data:
         module, outputs = line.split(" -> ")
         if module != BROADCASTER:
@@ -28,10 +60,16 @@ def parse(data):
         type = module[:1]
 
         outputs = outputs.split(", ")
+        all_outputs.update(outputs)
         parsed[name] = {
             "type": MODULE_TYPES[type],
             "outputs": outputs
         }
+
+    # check if there are any outputs that are not defined as modules
+    for output in all_outputs:
+        if output not in parsed:
+            parsed[output] = { "type": "", "outputs": [] }
 
     # determine the inputs and initial state
     for name, module in parsed.items():
@@ -49,20 +87,26 @@ def parse(data):
 
         if module["type"] == CONJUNCTION:
             parsed[name]["state"] = {input : LOW for i, input in enumerate(inputs)}
+
         
+    
     return parsed
 
 def good_pulse(pulse):
     return pulse == LOW or pulse == HIGH
 
+def press_button(data):
+    global queue
+
+    enqueue({"module": BROADCASTER, "pulse": LOW, "input": BUTTON})
+   
+
 def flip_flop(data, module_name, pulse):
-    if not good_pulse(pulse) or \
-       data[module_name]["type"] != FLIP_FLOP:
-        
+    if not good_pulse(pulse) or not is_flip_flop(data, module_name):
         raise ValueError
     
     if pulse == HIGH:
-        return
+        return None
     
     if data[module_name]["state"] == LOW:
         data[module_name]["state"] = HIGH
@@ -73,7 +117,7 @@ def flip_flop(data, module_name, pulse):
 
 def conjunction(data, module_name, input, pulse):
     if not good_pulse(pulse) or \
-        data[module_name]["type"] != CONJUNCTION or \
+        not is_conjunction(data, module_name) or \
         input not in data[module_name]["inputs"]:
 
         raise ValueError
@@ -95,65 +139,57 @@ def is_flip_flop(data, module_name):
 def is_conjunction(data, module_name):
     return get_type(data, module_name) == CONJUNCTION
 
-def add(counter, value):
-    if LOW not in counter:
-        counter[LOW] = 0
+def is_broadcaster(data, module_name):
+    return get_type(data, module_name) == BROADCASTER
 
-    if HIGH not in counter:
-        counter[HIGH] = 0
 
-    for pulse, count in value.items():
-        counter[pulse] += count
-
-    return counter
-
-def process_module(data, module_name, input= "", pulse=LOW):
-    if module_name == "output":
-        return { pulse: 1 }
-    
-    counter = {}
-    if is_flip_flop(data, module_name):
-        output = flip_flop(data, module_name, pulse)
-
-    if is_conjunction(data, module_name):
-        output = conjunction(data, module_name, input, pulse)
-
-    if output:
-        for next in data[module_name]["outputs"]:
-            counter = add(counter, process_module(data, next, module_name, output))
-
-    return counter
-
-def broadcaster(data, pulse):
-    if "broadcaster" not in data:
+def module(data, name= "", input= "", pulse=LOW):
+    if not good_pulse(pulse):
         raise ValueError
     
-    if not good_pulse(pulse) or \
-        data[BROADCASTER]["type"] != BROADCASTER:
-        raise ValueError
+    outputs = {}
+    output = None
+    if is_broadcaster(data, name):
+        output = pulse
+
+    if is_flip_flop(data, name):
+        output = flip_flop(data, name, pulse)
+        
+    if is_conjunction(data, name):
+        output = conjunction(data, name, input, pulse)
+
+    if not output:
+        return {}
     
-    counter = {}
-    for module_name in data["broadcaster"]["outputs"]:
-        counter = add(counter, process_module(data, module_name))
+    for o in data[name]["outputs"]:
+        outputs[o] = output
+        enqueue({"module": o, "pulse": output, "input": name})
 
-    return counter
+    return outputs
 
-def button(data):
-    return broadcaster(data, LOW)
-   
+def processor(data):
+    global queue
+    
+    while queue:
+        name, pulse, input = dequeue().values()
+        module(data, name= name, input= input, pulse= pulse)
+
+    return
+
 
 def part_a(data):
+    global counter
+
     data = parse(data)
     total = 0
     counter = {}
     for i in range(1000):
-        counter = add(counter, button(data))
+        press_button(data)
+        processor(data)
     
     total = counter[LOW] * counter[HIGH]
 
     return total    
-
-
 
 def part_b(data):
     data = parse(data)
@@ -174,5 +210,5 @@ test_data_part_b = test_data_part_a
 if __name__ == "__main__":
     data = common.get_data(__file__)
     
-    common.run(part_a, test_data_part_a, data, 32000000)
+    common.run(part_a, test_data_part_a, data, 11687500)
     common.run(part_b, test_data_part_b, data, 0)
