@@ -146,7 +146,7 @@ def is_broadcaster(data, module_name):
     return get_type(data, module_name) == BROADCASTER
 
 
-def module(data, name= "", input= "", pulse=LOW):
+def module(data, name= "", input= "", pulse=LOW, presses={}, button_presses=1):
     if not good_pulse(pulse):
         raise ValueError
     
@@ -163,6 +163,10 @@ def module(data, name= "", input= "", pulse=LOW):
 
     if not output:
         return {}
+    
+    if name in presses and output == HIGH:
+        if presses[name] == 0:
+            presses[name] = button_presses
     
     for o in data[name]["outputs"]:
         outputs[o] = output
@@ -194,16 +198,6 @@ def module2(data, presses, name= "", input= "", pulse=LOW, button_presses = 1):
         outputs[o] = output
         enqueue({"module": o, "pulse": output, "input": name})
 
-        
-
-
-def processor(data):
-    global queue
-    
-    while queue:
-        name, pulse, input = dequeue().values()
-        module(data, name= name, input= input, pulse= pulse)
-
 
 def part_a(data):
     global counter
@@ -213,7 +207,9 @@ def part_a(data):
     counter = {}
     for i in range(1000):
         press_button(data)
-        processor(data)
+        while queue:
+            name, pulse, input = dequeue().values()
+            module(data, name= name, input= input, pulse= pulse)
     
     total = counter[LOW] * counter[HIGH]
 
@@ -236,8 +232,7 @@ def part_b(data):
         press_button(data)
         while queue:
             name, pulse, input = dequeue().values()
-
-            module2(data, presses, name= name, input= input, pulse= pulse, button_presses=button_presses)
+            module(data, name= name, input= input, pulse= pulse, presses=presses, button_presses=button_presses)
 
         button_presses += 1
     
@@ -256,5 +251,5 @@ test_data_part_b = test_data_part_a
 if __name__ == "__main__":
     data = common.get_data(__file__)
     
-    #common.run(part_a, test_data_part_a, data, 11687500)
+    common.run(part_a, test_data_part_a, data, 11687500)
     common.run(part_b, test_data_part_b, data, 0)
