@@ -1,4 +1,5 @@
 from mysolutions import common
+import math
 
 LOW = "low"
 HIGH = "high"
@@ -33,6 +34,8 @@ def dequeue():
     
     return None
 
+def clear_queue():
+    queue = []
 
 def count_pulse(value):
     global counter
@@ -69,7 +72,7 @@ def parse(data):
     # check if there are any outputs that are not defined as modules
     for output in all_outputs:
         if output not in parsed:
-            parsed[output] = { "type": "", "outputs": [] }
+            parsed[output] = { "type": "", "outputs": [], "state": LOW }
 
     # determine the inputs and initial state
     for name, module in parsed.items():
@@ -165,7 +168,34 @@ def module(data, name= "", input= "", pulse=LOW):
         outputs[o] = output
         enqueue({"module": o, "pulse": output, "input": name})
 
-    return outputs
+def module2(data, presses, name= "", input= "", pulse=LOW, button_presses = 1):
+    if not good_pulse(pulse):
+        raise ValueError
+    
+    outputs = {}
+    output = None
+    if is_broadcaster(data, name):
+        output = pulse
+
+    if is_flip_flop(data, name):
+        output = flip_flop(data, name, pulse)
+        
+    if is_conjunction(data, name):
+        output = conjunction(data, name, input, pulse)
+
+    if not output:
+        return {}
+    
+    if name in presses and output == HIGH:
+        if presses[name] == 0:
+            presses[name] = button_presses
+    
+    for o in data[name]["outputs"]:
+        outputs[o] = output
+        enqueue({"module": o, "pulse": output, "input": name})
+
+        
+
 
 def processor(data):
     global queue
@@ -173,8 +203,6 @@ def processor(data):
     while queue:
         name, pulse, input = dequeue().values()
         module(data, name= name, input= input, pulse= pulse)
-
-    return
 
 
 def part_a(data):
@@ -191,11 +219,29 @@ def part_a(data):
 
     return total    
 
+
 def part_b(data):
     data = parse(data)
     total = 0
+    counter = {}
+    button_presses = 1
 
-    return total
+    presses = {}
+    
+    for mod in data["rx"]["inputs"]:
+        for input in data[mod]["inputs"]:
+            presses[input] = 0 
+            
+    while list(presses.values()).count(0) != 0:
+        press_button(data)
+        while queue:
+            name, pulse, input = dequeue().values()
+
+            module2(data, presses, name= name, input= input, pulse= pulse, button_presses=button_presses)
+
+        button_presses += 1
+    
+    return math.lcm(*presses.values())
 
 test_data_part_a = """\
 broadcaster -> a
@@ -210,5 +256,5 @@ test_data_part_b = test_data_part_a
 if __name__ == "__main__":
     data = common.get_data(__file__)
     
-    common.run(part_a, test_data_part_a, data, 11687500)
+    #common.run(part_a, test_data_part_a, data, 11687500)
     common.run(part_b, test_data_part_b, data, 0)
